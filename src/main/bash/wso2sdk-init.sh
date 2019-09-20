@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
 
 # wso2sdk version
-# TODO: this token is to be replaced by groovy
+# this token will be replaced by groovy
 if [ -z "$WSO2SDK_VERSION" ]; then
   export WSO2SDK_VERSION="@WSO2SDK_VERSION@"
 fi
 
 # wso2sdk products api
-# TODO: this token is to be replaced by groovy
+# this token will be replaced by groovy
 if [ -z "$WSO2SDK_PRODUCTS_API" ]; then
   export WSO2SDK_PRODUCTS_API="@WSO2SDK_PRODUCTS_API@"
 fi
@@ -41,16 +41,21 @@ done
 IFS="$OLD_IFS"
 unset scripts script
 
-# TODO: decide plugin architecture and implement this code
 # initialize plugins
-#OLD_IFS="$IFS"
-#IFS=$'\n'
-#scripts=($(find "$WSO2SDK_PLUGINS_DIR" -type f -name 'wso2sdk-*'))
-#for script in "${scripts[@]}"; do
-#  source "$script"
-#done
-#IFS="$OLD_IFS"
-#unset scripts script
+if [ -d "$WSO2SDK_PLUGINS_DIR" ]; then
+  OLD_IFS="$IFS"
+  IFS=$'\n'
+  plugin_dirs=($(find "$WSO2SDK_PLUGINS_DIR" -type d -mindepth 1 -maxdepth 1))
+  for plugin_dir in "${plugin_dirs[@]}"; do
+    plugin_init_file="${plugin_dir}/init.sh"
+
+    if [ -f $plugin_init_file ]; then
+      source "$plugin_init_file"
+    fi
+  done
+  IFS="$OLD_IFS"
+  unset plugin_dirs plugin_dir plugin_init_file
+fi
 
 # TODO: set home dir for installed products
 # link products
